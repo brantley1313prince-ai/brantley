@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawn Mowing App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        h2 { color: #2e7d32; margin-top: 0; }
+        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; background-color: #2e7d32; color: white; border: none; padding: 12px; margin-top: 20px; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #1b5e20; }
+        
+        .request-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .badge { background-color: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .actions { display: flex; gap: 8px; }
+        .btn-accept { background-color: #2e7d32; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-decline { background-color: #ffebee; color: #c62828; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Book Lawn Service</h2>
+        <form id="booking-form">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Alex Smith" required>
+
+            <label for="address">Street Address</label>
+            <input type="text" id="address" placeholder="123 Main St" required>
+
+            <label for="size">Yard Size</label>
+            <select id="size">
+                <option value="Small">Small (under 1/4 acre)</option>
+                <option value="Medium">Medium (1/4 to 1/2 acre)</option>
+                <option value="Large">Large (over 1/2 acre)</option>
+            </select>
+
+            <label for="date">Preferred Date</label>
+            <input type="date" id="date" required>
+
+            <button type="submit">Submit Request</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Provider Dashboard: Incoming Requests</h2>
+        <div id="requests-list"></div>
+    </div>
+</div>
+
+<script>
+    // Initial sample job requests
+    const jobRequests = [
+        { id: 101, customer: "Sam Rivera", address: "742 Evergreen Terrace", size: "Medium", date: "2026-08-02", price: "$45.00" }
+    ];
+
+    const prices = {
+        Small: "$30.00",
+        Medium: "$45.00",
+        Large: "$75.00"
+    };
+
+    const form = document.getElementById("booking-form");
+    const container = document.getElementById("requests-list");
+
+    // Function to draw requests on screen
+    function renderRequests() {
+        container.innerHTML = "";
+        if (jobRequests.length === 0) {
+            container.innerHTML = "<p style='color: #888;'>No active requests right now.</p>";
+            return;
+        }
+
+        jobRequests.forEach(req => {
+            const card = document.createElement("div");
+            card.className = "request-card";
+            card.innerHTML = `
+                <div>
+                    <span class="badge">Payout: ${req.price}</span>
+                    <h4 style="margin: 5px 0;">${req.address}</h4>
+                    <p style="margin: 0; font-size: 13px; color: #666;">
+                        <strong>Customer:</strong> ${req.customer} | 
+                        <strong>Yard:</strong> ${req.size} | 
+                        <strong>Date:</strong> ${req.date}
+                    </p>
+                </div>
+                <div class="actions">
+                    <button class="btn-accept" onclick="acceptJob(${req.id})">Accept</button>
+                    <button class="btn-decline" onclick="removeJob(${req.id})">Decline</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Handle form submission
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const nameInput = document.getElementById("name").value;
+        const addressInput = document.getElementById("address").value;
+        const sizeInput = document.getElementById("size").value;
+        const dateInput = document.getElementById("date").value;
+
+        const newJob = {
+            id: Date.now(), // Generate a unique ID based on timestamp
+            customer: nameInput,
+            address: addressInput,
+            size: sizeInput,
+            date: dateInput,
+            price: prices[sizeInput] || "$40.00"
+        };
+
+        // Add the new job to top of the list
+        jobRequests.unshift(newJob);
+
+        // Re-render dashboard and clear form
+        renderRequests();
+        form.reset();
+    });
+
+    function acceptJob(id) {
+        alert("Job accepted! It has been added to your schedule.");
+        removeJob(id);
+    }
+
+    function removeJob(id) {
+        const index = jobRequests.findIndex(r => r.id === id);
+        if (index > -1) {
+            jobRequests.splice(index, 1);
+            renderRequests();
+        }
+    }
+
+    // Load initial jobs on page view
+    renderRequests();
+</script>
+
+</body>
+</html>
